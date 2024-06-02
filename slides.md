@@ -25,6 +25,96 @@ mdc: true
 </div>
 ---
 
-# What dis about?
+# What's wrong with this code?
+
+```javascript
+const gzip = require('node:zlib').createGzip();
+const fs = require('node:fs');
+
+const inp = fs.createReadStream('input.file');
+const out = fs.createWriteStream('output.gz');
+gzip.on('data', (chunk) => {
+    out.write(chunk);
+})
+inp.on('data', (chunk) => {
+    gzip.write(chunk);
+})
+inp.on('end', () => out.close());
+inp.on('close', () => out.close);
+```
+
+<v-click>
+
+# 💩 
+
+```shell
+kernel: Memory cgroup out of memory: Killed process 133842 (node)
+```
+</v-click>
 
 ---
+
+# But why???
+
+- Fast reader
+- Slow writer
+- Writes buffered in memory
+
+```mermaid
+flowchart LR
+Reader -->|1GB/s| BufferGzip((Buffer)) --> Gzip -->|500MB/s| Buffer((Buffer)) -->|100MB/s| Writer[File writer]
+```
+
+---
+
+# Oh fuck
+
+<img src="images/picard-facepalm.webp" class="h-100" />
+
+---
+
+# It's everywhere!!
+
+```mermaid
+flowchart LR
+Consumer(Consumer) --> Buffer((Buffer)) --> Producer(Producer)
+```
+
+```mermaid
+flowchart LR
+ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> DB[(Database)]
+```
+
+---
+
+# Wait, wat?
+
+<v-switch>
+<template #1>
+```mermaid
+flowchart LR
+ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> DB[(Database)]
+```
+</template>
+
+<template #2>
+```mermaid
+flowchart LR
+ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Handler(Handler function)--> DB[(Database)]
+```
+</template>
+
+<template #3>
+```mermaid
+flowchart LR
+ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Buffer((Some buffer?)) --> Handler(Handler function)--> DB[(Database)]
+```
+</template>
+
+</v-switch>
+
+---
+
+# The event loop IS the buffer
+
+<img src="images/node-queues.svg" />
