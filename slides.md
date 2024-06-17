@@ -125,6 +125,34 @@ ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Buffer((Some buffer?)) --> 
 
 <img src="/images/node-queues.svg" />
 
+---
+
+# Event loop utilization
+Since node 12
+
+```javascript
+const { eventLoopUtilization } = require('node:perf_hooks').performance;
+
+setInterval(() => {
+    const elu = eventLoopUtilization();
+    reportELU(elu);
+}, 10000);
+```
+
+---
+
+# Event loop lag
+
+```javascript
+let lastCheckoint = Date.now(); 
+const lagInterval = 1000; // ms
+setInterval(() => {
+  const now = Date.now();
+  const lag = now - lastCheckpoint - lagInterval;
+  lastCheckoint = now;
+  reportLag(lag);
+}, lagInterval);
+```
 
 ---
 layout: section
@@ -192,12 +220,32 @@ inp.pipe(gzip).pipe(out);
 
 ---
 
-# What about async promises?
+# What about async?
 
 ```javascript
-const asyncJob = readFromDB(query);
-
+setImmediate(someBigTask);
 ```
+
+- Not awaited, so no backpressure
+
+```javascript
+await Promise.all(manyPromises)
+```
+
+- How many concurrent jobs will this create?
+- What happens when async part finishes?
+
+---
+
+# Little's Law
+
+$L = \lambda W$
+
+- L - Clients in the system (concurrency + queue)
+- $\lambda$ - Arrival rate (throughput)
+- W - Average wait time (latency)
+
+We can limit rate or concurrency 
 
 ---
 
@@ -221,3 +269,55 @@ $$
 
 Concurrency = 50<br>
 Throughput = 1000 req/sec
+
+---
+
+# Protecting with proxy
+Using reverse proxy / load balancer
+
+E.g. for Nginx
+```
+upstream serviceA {
+  server backend1.example.com:8080 max_conns=100;
+}
+```
+
+- Not supported by all LBs, proxies
+
+---
+
+# Protecting with middleware
+*Where* requests wait matters
+
+```javascript
+app.use(limiter({maxConnections: 100}));
+```
+
+- Return HTTP 503
+
+---
+
+# Load management
+
+If the system backpressures, what to with excess load?
+
+We can
+
+- Reject traffic (HTTP 503)
+- Slow down clients (HTTP 429, slow responses)
+- Fall back to static/cheap responses
+
+---
+
+# The cheatsheet
+- Use `streams` where possible
+- Always await for promises or limit pending async tasks
+- Calculate max requests concurrency for servers
+- Always backpressure between services
+- Limit all queues
+- Load shed at the edge of the system
+
+---
+layout: end
+---
+So long and thanks for all the strings!
