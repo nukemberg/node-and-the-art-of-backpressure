@@ -20,7 +20,7 @@ mdc: true
 ## Avishai Ish-Shalom
 
 <div class="absolute flex flex-row bottom-4 left-2">
-<img class="object-contain max-w-8 max-h-8" src="images/twitter.svg" >
+<img class="object-contain max-w-8 max-h-8" src="/images/twitter.svg" >
 <span>@nukemberg</span>
 </div>
 ---
@@ -69,8 +69,14 @@ Reader -->|1GB/s| BufferGzip((Buffer)) --> Gzip -->|500MB/s| Buffer((Buffer)) --
 
 # Oh fuck
 
-<img src="images/picard-facepalm.webp" class="h-100" />
+<img src="/images/picard-facepalm.webp" class="h-100" />
 
+
+---
+
+# What's happening here?
+
+<ForwardPressure id="forward1" :width="800" :height="200" />
 ---
 
 # It's everywhere!!
@@ -117,4 +123,101 @@ ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Buffer((Some buffer?)) --> 
 
 # The event loop IS the buffer
 
-<img src="images/node-queues.svg" />
+<img src="/images/node-queues.svg" />
+
+
+---
+layout: section
+---
+
+# Buffers are Queues
+
+---
+layout: image-right
+image: images/queueing.png
+backgroundSize: contain
+---
+
+# Queue theory 101
+- Queueing is non-linear
+- Approaches infinity on heavy load
+- Effects memory usage and latency
+- Unlimited queue == outage
+
+---
+
+# Pull based system
+Workers control load, overload not possible
+
+```mermaid
+sequenceDiagram
+  participant Producer
+  participant Worker
+  Worker->>Producer: gimme work!
+  Producer->>Worker: here's a job
+```
+---
+
+# Use the ack, Luke
+Workers use _tickets_ to signal they are ready for more work
+```mermaid
+sequenceDiagram
+  participant Producer
+  participant Worker
+  Producer->>Worker: Here's a job
+  Worker->>Producer: Done! gimme more!
+  Producer->>Worker: Here's another job
+```
+
+---
+
+# Backpressure
+
+<img src="/images/backpressure.svg" />
+
+---
+
+# Once more, with backpressure
+
+Node.js streams support backpressure!
+
+```javascript
+const gzip = require('node:zlib').createGzip();
+const fs = require('node:fs');
+
+const inp = fs.createReadStream('input.file');
+const out = fs.createWriteStream('output.gz');
+inp.pipe(gzip).pipe(out);
+```
+
+---
+
+# What about async promises?
+
+```javascript
+const asyncJob = readFromDB(query);
+
+```
+
+---
+
+# Services need limits too
+
+$$
+\begin{align*}
+&Concurrency = N_{cores} (1+ \frac {W}{C}) = N_{cores} \frac {\lambda}{C}
+\\
+&C := \textrm{Average CPU time} \\
+&W := \textrm{Average I/O wait time} \\
+&\lambda = W + C := \textrm{Average latency}
+\end{align*}
+$$
+
+## Example:
+
+- Node.js server ($N_{cores} = 1$)
+- Avg req latency: 50ms
+- Avg cpu/req: 1ms
+
+Concurrency = 50<br>
+Throughput = 1000 req/sec
