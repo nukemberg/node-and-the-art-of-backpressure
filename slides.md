@@ -65,6 +65,22 @@ flowchart LR
 Reader -->|1GB/s| BufferGzip((Buffer)) --> Gzip -->|500MB/s| Buffer((Buffer)) -->|100MB/s| Writer[File writer]
 ```
 
+```javascript{6,7,8}
+const gzip = require('node:zlib').createGzip();
+const fs = require('node:fs');
+
+const fastReader = fs.createReadStream('input.file');
+const slowWriter = fs.createWriteStream('output.gz');
+gzip.on('data', (chunk) => {
+    slowWriter.write(chunk);
+})
+fastReader.on('data', (chunk) => {
+    gzip.write(chunk);
+})
+fastReader.on('end', () => slowWriter.close());
+fastReader.on('close', () => slowWriter.close);
+```
+
 ---
 
 # Oh fuck
@@ -77,6 +93,11 @@ Reader -->|1GB/s| BufferGzip((Buffer)) --> Gzip -->|500MB/s| Buffer((Buffer)) --
 # What's happening here?
 
 <ForwardPressure id="forward1" :width="800" :height="200" />
+
+---
+layout: image-right
+image: /images/buffers-everywhere-meme.jpg
+backgroundSize: fit
 ---
 
 # It's everywhere!!
@@ -290,7 +311,9 @@ upstream serviceA {
 *Where* requests wait matters
 
 ```javascript
+// first middleware
 app.use(limiter({maxConnections: 100}));
+// ... all your other stuff
 ```
 
 - Return HTTP 503
