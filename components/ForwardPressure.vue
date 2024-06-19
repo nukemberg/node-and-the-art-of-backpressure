@@ -19,13 +19,13 @@
 </template>
 
 <script setup lang="ts">
-import {onUpdated, onMounted, ref, computed, watch, triggerRef, onBeforeUpdate, onRenderTriggered, onRenderTracked, watchEffect, shallowRef} from "vue";
+import {onMounted, ref, watch, triggerRef, watchEffect, shallowRef} from "vue";
 import * as d3 from "d3";
 import {useNav, useSlideContext} from "@slidev/client";
 
 const nav = useNav();
 const thisSlide = useSlideContext().$route.no;
-let intervalHandler = null;
+let intervalHandler: NodeJS.Timeout | null = null;
 
 watch(nav.currentPage, (currentSlide) => {
     if (thisSlide == currentSlide) {

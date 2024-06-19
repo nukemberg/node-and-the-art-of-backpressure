@@ -182,9 +182,7 @@ layout: section
 # Buffers are Queues
 
 ---
-layout: image-right
-image: images/queueing.png
-backgroundSize: contain
+layout: two-cols
 ---
 
 # Queue theory 101
@@ -192,6 +190,10 @@ backgroundSize: contain
 - Approaches infinity on heavy load
 - Effects memory usage and latency
 - Unlimited queue == outage
+
+::right::
+
+<QueueModel model="mm1" height="400" width="400"/>
 
 ---
 
