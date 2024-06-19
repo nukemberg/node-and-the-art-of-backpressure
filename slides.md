@@ -285,10 +285,10 @@ $$
 ## Example:
 
 - Node.js server ($N_{cores} = 1$)
-- Avg req latency: 50ms
-- Avg cpu/req: 1ms
+- Avg req <span v-mark="{color: 'blue'}">latency: 50ms</span>
+- Avg req <span v-mark="{color: 'blue'}">CPU time: 1ms</span>
 
-Concurrency = 50<br>
+<span v-mark="{color: 'green'}">Concurrency = 50</span><br>
 Throughput = 1000 req/sec
 
 ---
