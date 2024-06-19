@@ -144,7 +144,7 @@ ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Buffer((Some buffer?)) --> 
 
 # The event loop IS the buffer
 
-<img src="/images/node-queues.svg" />
+<object class="svg" data="/images/node-queues.svg" />
 
 ---
 
@@ -222,7 +222,7 @@ sequenceDiagram
 
 # Backpressure
 
-<img src="/images/backpressure.svg" />
+<object data="/images/backpressure.svg" class="svg" />
 
 ---
 
@@ -292,6 +292,9 @@ $$
 Throughput = 1000 req/sec
 
 ---
+layout: svg
+svg: "/images/queue-at-lb.svg"
+---
 
 # Protecting with proxy
 Using reverse proxy / load balancer
@@ -305,6 +308,9 @@ upstream serviceA {
 
 - Not supported by all LBs, proxies
 
+---
+layout: svg
+svg: /images/queue-at-middleware.svg
 ---
 
 # Protecting with middleware
