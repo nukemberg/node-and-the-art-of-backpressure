@@ -83,7 +83,7 @@ fastReader.on('close', () => slowWriter.close);
 
 ---
 
-# Oh fuck
+# Oh fudge
 
 <img src="/images/picard-facepalm.webp" class="h-100" />
 
@@ -261,6 +261,7 @@ setImmediate(someBigTask);
 ```javascript
 await Promise.all(manyPromises)
 ```
+<!-- Add visualization -->
 
 - How many concurrent jobs will this create?
 - What happens when async part finishes?
@@ -278,9 +279,14 @@ $L = \lambda W$
 We can limit rate or concurrency 
 
 ---
+layout: formula-with-example
+---
 
 # Services need limits too
 
+::formula::
+
+## Formula
 $$
 \begin{align*}
 &Concurrency = N_{cores} (1+ \frac {W}{C}) = N_{cores} \frac {\lambda}{C}
@@ -290,6 +296,8 @@ $$
 &\lambda = W + C := \textrm{Average latency}
 \end{align*}
 $$
+
+::example::
 
 ## Example:
 
