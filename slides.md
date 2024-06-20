@@ -146,6 +146,8 @@ ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Buffer((Some buffer?)) --> 
 
 <object class="svg" data="images/node-queues.svg" />
 
+<QRCodeVue3 value="https://youtu.be/9yWjnzWZP2Q?si=0WqTzvufcHVJM348" height="200" width="200" />
+
 ---
 
 # Event loop utilization
@@ -190,6 +192,11 @@ layout: two-cols
 - Approaches infinity on heavy load
 - Effects memory usage and latency
 - Unlimited queue == outage
+
+<div class="absolute bottom-10">
+<QRCode value="https://youtu.be/9yWjnzWZP2Q?si=0WqTzvufcHVJM348" height="150" width="150" />
+<p class="text-sm italic">Queue theory for Node.js engineers (Node.TLV 2022)</p>
+</div>
 
 ::right::
 

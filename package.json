@@ -17,6 +17,8 @@
     "d3-color": "^3.1.0",
     "d3-interpolate": "^3.0.1",
     "d3-path": "^3.1.0",
+    "qrcode-vue3": "^1.6.8",
+    "simscript": "^1.0.37",
     "slidev-theme-dracula": "^0.2.0",
     "vue": "^3.4.21",
     "vue-chartjs": "^5.3.1"
