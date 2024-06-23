@@ -146,8 +146,6 @@ ServiceA(Service A) -->|HTTP| ServiceB(Service B)--> Buffer((Some buffer?)) --> 
 
 <object class="svg" data="images/node-queues.svg" />
 
-<QRCodeVue3 value="https://youtu.be/9yWjnzWZP2Q?si=0WqTzvufcHVJM348" height="200" width="200" />
-
 ---
 
 # Event loop utilization
@@ -362,6 +360,8 @@ We can
 - Always backpressure between services
 - Limit all queues
 - Load shed at the edge of the system
+
+<QRCode value="https://github.com/nukemberg/node-and-the-art-of-backpressure/blob/master/CHEATSHEET.md" height="200" width="200" />
 
 ---
 layout: end
