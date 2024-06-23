@@ -40,58 +40,70 @@ const container = ref(null);
 const svg = ref(null);
 
 const props = defineProps({
-    id: String,
-    height: Number,
-    width: Number
+    id: {type: String},
+    height: {type: String, default: "400"},
+    width: {type: String, default: "800"}
 });
 
-const data = shallowRef([
-    {capacity: 0, id: "A", rate: 15},
-    {capacity: 0, id: "B", rate: 10},
-    {capacity: 0, id: "C", rate: 5}
-]);
+const data = shallowRef({
+    workers: [
+        {capacity: 0, id: "A", rate: 15},
+        {capacity: 0, id: "B", rate: 10},
+        {capacity: 0, id: "C", rate: 5}
+    ],
+    workItems: []
+});
 
 const MAX_CAPACITY = 50;
 
+const sectionWidth = Number.parseInt(props.width) / data.value.workers.length;
+console.log(`section widht: ${sectionWidth}`);
+const spacing = sectionWidth / data.value.workers.length;
 
 function draw(data) {
     const g = d3.select(svg.value).select("g");
-    const _data = data.map((d, i) => {
+    const workers = data.workers.map((d, i) => {
         return {
-            r: Math.max(Math.min(100, d.capacity*5), 40),
-            x: 50 + i*200,
+            r: Math.max(Math.min(sectionWidth, d.capacity*5), 40),
+            x: spacing + i*sectionWidth,
             ...d
         };
     });
     
     const nodes = g.selectAll("g.worker")
-    .data(_data, d => d ? d.id : this.id)
-    .join("g")
+    .data(workers, d => d ? d.id : this.id);
+
+    nodes.enter().append("g")
     .classed("worker", true)
-    .attr("transform", (d) => `translate(${d.x}, ${100})`);
+    .attr("transform", (d) => `translate(${d.x}, ${100})`)
+    .call(s => {
+        s.append("circle");
+        s.append("text")
+        .text((d) => `Rate: ${d.rate}/sec`)
+        .attr("dy", -50)
+        .attr("dx", -50);
+        s.append("text")
+        .text((d) => d.id)
+        .attr("dy", 0)
+        .attr("dx", -7)
+        .attr("font-size", "20px");
+        s.append("text")
+        .classed("capacity", true)
+        .attr("dy", 70)
+        .attr("dx", -50)
+        .attr("font-size", "20px")
+        .text((d) => `Buffered: ${d.capacity}`);
+    });
     
-    nodes.append("circle")
+    nodes.select("circle")
     .attr("r", (d) => d.r)
     .attr("fill", (d) => d3.interpolate("lightblue", "red")(Math.min(d.capacity/MAX_CAPACITY, 1)));
     
-    nodes.append("text")
-    .text((d) => `Rate: ${d.rate}/sec`)
-    .attr("dy", -50)
-    .attr("dx", -50)
-    nodes.append("text")
-    .text((d) => d.id)
-    .attr("dy", 0)
-    .attr("dx", -5)
-    .attr("font-size", "20px");
-    
-    nodes.append("text")
-    .text((d) => `|${d.capacity}|`)
-    .attr("dy", 20)
-    .attr("dx", -10)
-    .attr("font-size", "20px");
-    
+    nodes.select("text.capacity")
+        .text((d) => `Buffered: ${d.capacity}`);
+
     g.selectAll("line.connector")
-    .data(d3.pairs(_data), ([start, end]) => start ? `${start.id}->${end.id}` : this.id)
+    .data(d3.pairs(workers), ([start, end]) => start ? `${start.id}->${end.id}` : this.id)
     .join("line")
     .classed("connector", true)
     .attr("x1", (d) => d[0].x + d[0].r)
@@ -102,23 +114,58 @@ function draw(data) {
     .attr("stroke-width", 2)
     .attr("marker-end", "url(#arrow)");
     
+    function animateWorkitem(node) {
+        node
+        .classed("workitem", true)
+        .attr("r", 0)
+        .attr("fill", "gray")
+        .attr("fill-opacity", "0.8")
+        .attr("cx", (d) => {
+        const origin = workers.find((w) => w.id == d[0]);
+        return origin.r + origin.x;
+        })
+        .attr("cy", 100)
+        .transition()
+        .duration(100)
+        .attr("r", 10)
+        .transition()
+        .duration(500)
+        .attr("cx", (d) => {
+        const dest = workers.find((w) => w.id == d[1]);
+        return dest.x - dest.r;
+        })
+        .transition()
+        .duration(100)
+        .attr("r", 0)
+        .remove();
+    }
+
+    g.selectAll("circle.workitem")
+        .data(data.workItems)
+        .join(enter => enter
+            .append("circle")
+            .call(animateWorkitem), 
+        update => update,
+        exit => exit.remove());
 }
 
 function animationTick() {
-    const _data = data.value;
+    const {workers} = data.value;
+    const workItems = [];
     if (Math.random() < 0.9) {
-        _data[0].capacity++;
+        workers[0].capacity++;
     }
 
-    for (let i=0; i<_data.length; i++) {
-        if (Math.random()*_data[i].rate > 1) {
-            _data[i].capacity = Math.max(0, _data[i].capacity - 1);
-            if (i + 1 < _data.length) {
-                _data[i+1].capacity++;
+    for (let i=0; i<workers.length; i++) {
+        if (Math.random()*workers[i].rate > 1) {
+            workers[i].capacity = Math.max(0, workers[i].capacity - 1);
+            if (i + 1 < workers.length) {
+                workItems.push([workers[i].id, workers[i+1].id]);
+                workers[i+1].capacity += 1;
             }
         }
     }
-    data.value = _data;
+    data.value = {workers, workItems};
     triggerRef(data);
 }
 

@@ -92,7 +92,7 @@ fastReader.on('close', () => slowWriter.close);
 
 # What's happening here?
 
-<ForwardPressure id="forward1" :width="800" :height="200" />
+<ForwardPressure id="forward1" :width="800" :height="400" />
 
 ---
 layout: image-right
