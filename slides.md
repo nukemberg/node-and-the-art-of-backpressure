@@ -361,8 +361,9 @@ We can
 - Limit all queues
 - Load shed at the edge of the system
 
-<QRCode value="https://github.com/nukemberg/node-and-the-art-of-backpressure/blob/master/CHEATSHEET.md" height="200" width="200" />
-
+::div{ .absolute .bottom-10 .right-10}
+<QRCode value="https://github.com/nukemberg/node-and-the-art-of-backpressure/blob/master/CHEATSHEET.md" height="150" width="150" />
+::
 ---
 layout: end
 ---
