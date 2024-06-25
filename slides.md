@@ -176,6 +176,12 @@ setInterval(() => {
 ```
 
 ---
+
+# Demo time
+
+<Asciinema src="eventLoopLag.cast" :options='{autoPlay: true, fit: false, terminalFontSize: "medium", theme: "solarized-dark", controls: "auto", rows: 10, idleTimeLimit: 2}' />
+
+---
 layout: section
 ---
 
