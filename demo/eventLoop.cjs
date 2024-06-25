@@ -1,7 +1,7 @@
 'use strict';
 const { eventLoopUtilization } = require('node:perf_hooks').performance;
 const { writeFileSync } = require('node:fs');
-
+const {terminal} = require('terminal-kit');
 
 async function busyWait(pct, interval) {
     let res = 0;
@@ -32,18 +32,23 @@ async function busyWait(pct, interval) {
     }
 }
 
-setInterval(() => {
-    const elu = eventLoopUtilization();
-    console.log(`Event loop utilization: ${elu.utilization}`);
-}, 1000);
-
 let lastCheckpoint = Date.now(); 
 const lagInterval = 1000; // ms
+
 setInterval(() => {
     const now = Date.now();
     const lag = now - lastCheckpoint - lagInterval;
     lastCheckpoint = now;
-    console.log(`Event loop lag: ${lag}ms`);
+    const elu = eventLoopUtilization();
+    terminal.moveTo(0, 2);
+    terminal.eraseDisplayBelow();
+    terminal(`Utilization: ${elu.utilization}\n`);
+    terminal("Event loop lag: ");
+    if (lag > 5) {
+        terminal.red(`${lag}ms`);
+    } else {
+        terminal(`${lag}ms`);
+    }
 }, lagInterval);
 
 async function keepBusy(cb, pct, interval) {
@@ -67,10 +72,11 @@ async function keepBusy(cb, pct, interval) {
 // }
 async function main() {
     for (const [pct, seconds] of [[0.8, 5], [0.85, 5], [0.9, 5], [0.95, 5], [0.99, 5]]) {
-        console.log(`Keeping event loop at ${pct} utilization for ${seconds} seconds`);
+        terminal.clear();
+        terminal(`Keeping event loop at ${pct} utilization for ${seconds} seconds\n`);
         await new Promise(resolve => setImmediate(keepBusy, resolve, pct, seconds*1000));
     }
-    console.log("Done!");
+    terminal.green.bold("\n\nDone!\n");
     process.exit(0);
 }
 main();
