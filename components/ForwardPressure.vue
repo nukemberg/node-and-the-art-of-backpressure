@@ -57,7 +57,6 @@ const data = shallowRef({
 const MAX_CAPACITY = 50;
 
 const sectionWidth = Number.parseInt(props.width) / data.value.workers.length;
-console.log(`section widht: ${sectionWidth}`);
 const spacing = sectionWidth / data.value.workers.length;
 
 function draw(data) {
